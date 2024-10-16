@@ -1,6 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { queryParamsDto } from 'src/utils/query-param.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -9,13 +8,15 @@ export class ProductsController {
 
   @Get()
   async show(
+    @Query("limit") limit: number,
+    @Query("page") page: number,
     @Query("category") category: string,
     @Query("is_new") is_new: string,
     @Query("discount") discount: string,
     @Query("order") order: "asc" | "desc"
   ) {
 
-    return this.productsService.getAll(Number(category), is_new, Number(discount), order)
+    return this.productsService.getAll(Number(limit), Number(page), Number(category), is_new, Number(discount), order)
     
   }
 

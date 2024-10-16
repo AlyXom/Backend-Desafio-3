@@ -8,8 +8,21 @@ export class ProductsService {
 
     constructor(@InjectRepository(ProductsEntity) private productRepository: Repository<ProductsEntity>) {}
 
-    async getAll(category?: number, is_new?: string, discount?: number, order?: "asc" | "desc") {
-        let products = await this.productRepository.find()
+    async getAll(limit?: number, page?: number ,category?: number, is_new?: string, discount?: number, order?: "asc" | "desc") {
+        let query = this.productRepository.createQueryBuilder("product")
+
+        if(page <= 0 || !page) {
+            page = 1
+        }
+
+        if(limit <= 10 || !limit) {
+            limit = 10
+        }
+
+        query.take(limit)
+        query.skip((page - 1) * limit)
+        let [products, total] = await query.getManyAndCount()
+
 
         if(order == "asc") {
             products.sort((a, b) => a.price - b.price)
@@ -27,13 +40,18 @@ export class ProductsService {
 
             products = [...allNew]
         }
-        if(discount) {
+        if(discount > 0) {
             let allDiscount = products.filter((product) => product.discount_percent === discount)
 
             products = [...allDiscount]
         }
 
-        return products
+        return {
+            products,
+            total,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit)
+        }
     }
 
     async findOne(id: number) {
