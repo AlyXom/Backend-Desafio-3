@@ -12,8 +12,11 @@ export class ProductsEntity {
     @Column({length: 10})
     sku: string
 
+    @Column()
+    category_id: number
+
     @ManyToOne(() => CategoryEntity, category => category.id, {nullable: false})
-    @JoinColumn({name: "category_id"})
+    @JoinColumn({name: "category_id", referencedColumnName: "id"})
     category: CategoryEntity;
 
     @Column({length: 250})

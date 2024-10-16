@@ -1,6 +1,12 @@
-import { IsString } from "class-validator";
+import { IsBooleanString, IsString } from "class-validator";
 
 export class queryParamsDto {
     @IsString()
-    category: string
+    category: string;
+
+    @IsBooleanString()
+    is_new: string
+
+    @IsBooleanString()
+    discount: string
 }
