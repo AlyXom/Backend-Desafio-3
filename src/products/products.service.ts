@@ -15,8 +15,8 @@ export class ProductsService {
             page = 1
         }
 
-        if(limit <= 10 || !limit) {
-            limit = 10
+        if(limit <= 8 || !limit) {
+            limit = 8
         }
 
         query.take(limit)
