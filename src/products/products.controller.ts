@@ -13,7 +13,7 @@ export class ProductsController {
     @Query("category") category: string,
     @Query("is_new") is_new: string,
     @Query("discount") discount: string,
-    @Query("order") order: "asc" | "desc"
+    @Query("order") order: "ASC" | "DESC"
   ) {
 
     return this.productsService.getAll(Number(limit), Number(page), Number(category), is_new, Number(discount), order)
