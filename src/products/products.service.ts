@@ -8,46 +8,39 @@ export class ProductsService {
 
     constructor(@InjectRepository(ProductsEntity) private productRepository: Repository<ProductsEntity>) {}
 
-    async getAll(limit?: number, page?: number ,category?: number, is_new?: string, discount?: number, order?: "asc" | "desc") {
-        let query = this.productRepository.createQueryBuilder("product")
-
+    async getAll(limit?: number, page?: number ,category?: number, is_new?: string, discount?: number, order?: "ASC" | "DESC") {
         if(page <= 0 || !page) {
             page = 1
         }
-
+        
         if(limit <= 8 || !limit) {
             limit = 8
         }
 
-        query.take(limit)
-        query.skip((page - 1) * limit)
-        let [products, total] = await query.getManyAndCount()
+        let query = this.productRepository.createQueryBuilder("product")
 
-
-        if(order == "asc") {
-            products.sort((a, b) => a.price - b.price)
-        } else if(order == 'desc') {
-            products.sort((a, b) => b.price - a.price)
+        if (category) {
+            query = query.where("product.category_id = :categoryId", { categoryId: category })
         }
 
-        if(category) {
-            let categories = products.filter((product) => product.category_id === category)
-
-            products = [...categories]
+        if (is_new) {
+            query = query.andWhere("product.is_new = :isNew", { isNew: is_new === "true" })
         }
-        if(is_new) {
-            let allNew = products.filter((product) => product.is_new === (is_new === "true"))
 
-            products = [...allNew]
+        if (order) {
+            query = query.orderBy("product.name", order)
         }
-        if(discount > 0) {
-            let allDiscount = products.filter((product) => product.discount_percent === discount)
 
-            products = [...allDiscount]
+        if (discount > 0) {
+            query = query.andWhere("product.discount_percent = :discount", { discount })
         }
+
+        const [products, total] = await query.getManyAndCount()
+
+        const paginatedProducts = products.slice((page - 1) * limit, page * limit);
 
         return {
-            products,
+            products: paginatedProducts,
             total,
             currentPage: page,
             totalPages: Math.ceil(total / limit)
